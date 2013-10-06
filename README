@@ -11,5 +11,13 @@ let's see what's on the menu in `src`:
 
 before you ask: yes, this is all very much in the realm of micro-optimization. however, in certain applications, every fraction of a millisecond can count: in real-time graphics code, you've generally got less than 20 milliseconds to render a frame if you want it to look smooth, and in real-time audio the margins are even smaller (especially when low latencies are involved). there's no shortage of choice for thread synchronization methods these days, all with their pros and cons, so i figured i'd add another few data points to the mix.
 
+to build:
+
+    $ make
+
+to run the tests:
+
+    $ make test
+
 questions, comments, and/or field recordings to wrl@illest.net
 thx

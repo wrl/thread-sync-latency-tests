@@ -14,7 +14,7 @@ TARGETS += $(OUTDIR)/pthread_condvar
 
 all: $(TARGETS)
 
-test:
+test: all
 	mkdir -p results
 	$(OUTDIR)/control > results/control
 	$(OUTDIR)/pthread_condvar > results/pthread_condvar
