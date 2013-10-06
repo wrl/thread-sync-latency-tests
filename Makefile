@@ -16,9 +16,7 @@ all: $(TARGETS)
 
 test:
 	mkdir -p results
-	@echo 'running control...'
 	$(OUTDIR)/control > results/control
-	@echo 'running pthread_condvar...'
 	$(OUTDIR)/pthread_condvar > results/pthread_condvar
 	@echo ''
 	ruby analyze.rb results/*
