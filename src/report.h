@@ -23,5 +23,6 @@
 static inline void
 report(useconds_t slept_for, time_t diff_seconds, long diff_nsec)
 {
-	printf("%d,%ld,%ld\n", slept_for, diff_seconds, diff_nsec);
+	int64_t nsec = diff_nsec + (diff_seconds * 1000000000);
+	printf("%d,%ld\n", slept_for, nsec);
 }

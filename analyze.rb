@@ -62,7 +62,7 @@ class ResultFile
   end
 
   def each_run
-    @run_order.each do |r|
+    @run_order.reverse.each do |r|
       yield(r, @run_map[r])
     end
   end
@@ -72,7 +72,7 @@ end
   # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # 
 # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ #
 
-line_regexp = /^(\d+),(\d+),(\d+)/
+line_regexp = /^(\d+),(\d+)/
 
 ARGF.each_line do |line|
   filename = if ARGF.filename == '-'
@@ -91,9 +91,7 @@ ARGF.each_line do |line|
 
   m = line_regexp.match(line)
   next unless m
-
-  ns = m[3].to_f + (m[2].to_f * 1000000000.0)
-  result_file.add_run(m[1].to_i, ns)
+  result_file.add_run(m[1].to_i, m[2].to_f)
 end
 
 def nsec_to_msec(ns)
