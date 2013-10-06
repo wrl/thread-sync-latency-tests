@@ -5,7 +5,7 @@ OUTDIR := build
 SRCDIR := src
 
 CFLAGS  += -Wall -Werror -std=c99 -D_GNU_SOURCE -pthread -I.
-LDFLAGS += -pthread
+LDFLAGS += -pthread -lrt
 
 TARGETS  = $(OUTDIR)/control
 TARGETS += $(OUTDIR)/pthread_condvar
