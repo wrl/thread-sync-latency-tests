@@ -9,6 +9,7 @@ LDFLAGS += -pthread -lrt
 
 TARGETS  = $(OUTDIR)/control
 TARGETS += $(OUTDIR)/pthread_condvar
+TARGETS += $(OUTDIR)/posix_sem
 
 .PHONY: all test clean
 
@@ -18,6 +19,7 @@ test: all
 	mkdir -p results
 	$(OUTDIR)/control > results/control
 	$(OUTDIR)/pthread_condvar > results/pthread_condvar
+	$(OUTDIR)/posix_sem > results/posix_sem
 	@echo ''
 	ruby analyze.rb results/*
 
@@ -31,7 +33,4 @@ $(OUTDIR)/%.o: $(SRCDIR)/%.c | $(OUTDIR)
 	$(CC) -c $(CFLAGS) -o $@ $^
 
 control: $(OUTDIR)/control.o | $(OUTDIR)
-	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $^
-
-pthread_condvar: $(OUTDIR)/pthread_condvar.o | $(OUTDIR)
 	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $^
