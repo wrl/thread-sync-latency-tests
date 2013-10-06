@@ -72,7 +72,7 @@ end
   # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # 
 # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ #
 
-line_regexp = /^ :: latency for (\d+) usec: (\d+) s, (\d+) ns/
+line_regexp = /^(\d+),(\d+),(\d+)/
 
 ARGF.each_line do |line|
   filename = if ARGF.filename == '-'

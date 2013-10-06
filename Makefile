@@ -28,7 +28,8 @@ test: all
 	$(OUTDIR)/pipe_nonblock > results/pipe_nonblock
 	$(OUTDIR)/eventfd_blocking > results/eventfd_blocking
 	$(OUTDIR)/eventfd_nonblock > results/eventfd_nonblock
-	@echo ''
+
+analyze:
 	ruby analyze.rb results/*
 
 clean:
