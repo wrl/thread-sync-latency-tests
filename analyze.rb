@@ -72,7 +72,7 @@ end
   # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # 
 # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ # ~ #
 
-line_regexp = /^ :: latency for (\d+) µsec: (\d+) s, (\d+) ns/
+line_regexp = /^ :: latency for (\d+) usec: (\d+) s, (\d+) ns/
 
 ARGF.each_line do |line|
   filename = if ARGF.filename == '-'
@@ -117,7 +117,7 @@ file_order.each do |filename|
   res.each_run do |slept_for, run|
     run.prepare!
 
-    puts %q[  when sleeping for %dµs:] % slept_for
+    puts %q[  when sleeping for %dus:] % slept_for
     puts %q[    samples: %d] % run.nsamples
     puts %q[       mean: %5.2fns (%5.4fms)] % time_pair(run.mean)
     puts %q[     median: %5.2fns (%5.4fms)] % time_pair(run.median)

@@ -23,6 +23,6 @@
 static inline void
 report(useconds_t slept_for, time_t diff_seconds, long diff_nsec)
 {
-	printf(" :: latency for %d µsec: %ld s, %ld ns\n",
+	printf(" :: latency for %d usec: %ld s, %ld ns\n",
 			slept_for, diff_seconds, diff_nsec);
 }
