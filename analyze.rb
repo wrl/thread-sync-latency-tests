@@ -92,14 +92,8 @@ ARGF.each_line do |line|
   m = line_regexp.match(line)
   next unless m
 
-  if m[2].to_i > 0
-    warn %q[ WARNING: sample with a nonzero second latency, disregarding.]
-    warn %q[          you should really check on your system configuration or]
-    warn %q[          something because that's super messed up.]
-    next
-  end
-
-  result_file.add_run(m[1].to_i, m[3].to_f)
+  ns = m[3].to_f + (m[2].to_f * 1000000000.0)
+  result_file.add_run(m[1].to_i, ns)
 end
 
 def nsec_to_msec(ns)
