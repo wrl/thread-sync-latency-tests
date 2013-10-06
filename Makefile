@@ -10,6 +10,7 @@ LDFLAGS += -pthread -lrt
 TARGETS  = $(OUTDIR)/control
 TARGETS += $(OUTDIR)/pthread_condvar
 TARGETS += $(OUTDIR)/posix_sem
+TARGETS += $(OUTDIR)/pipe_blocking
 
 .PHONY: all test clean
 
@@ -20,6 +21,7 @@ test: all
 	$(OUTDIR)/control > results/control
 	$(OUTDIR)/pthread_condvar > results/pthread_condvar
 	$(OUTDIR)/posix_sem > results/posix_sem
+	$(OUTDIR)/pipe_blocking > results/pipe_blocking
 	@echo ''
 	ruby analyze.rb results/*
 
