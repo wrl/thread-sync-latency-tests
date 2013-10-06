@@ -1,4 +1,4 @@
-/**
+/*
  * thread_sync_latency
  * benchmarks for the latency of various inter-thread synchronization
  * primitives
@@ -15,32 +15,10 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>. 
  */
 
-#include <semaphore.h>
-#include "stub_funcs.h"
+#pragma once
 
-struct thread_sync_impl {
-	sem_t sem;
-};
+struct thread_sync_impl;
 
-static int
-sync_impl_init(struct thread_sync_impl *impl)
-{
-	sem_init(&impl->sem, 0, 0);
-	return 0;
-}
-
-static int
-sync_impl_wait(struct thread_sync_impl *impl)
-{
-	sem_wait(&impl->sem);
-	return 0;
-}
-
-static int
-sync_impl_signal(struct thread_sync_impl *impl)
-{
-	sem_post(&impl->sem);
-	return 0;
-}
-
-#include "stub.inc.c"
+static int sync_impl_init(struct thread_sync_impl *);
+static int sync_impl_wait(struct thread_sync_impl *);
+static int sync_impl_signal(struct thread_sync_impl *);

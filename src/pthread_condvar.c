@@ -15,79 +15,39 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>. 
  */
 
-#include <stdlib.h>
-#include <unistd.h>
 #include <pthread.h>
-#include <time.h>
+#include "stub_funcs.h"
 
-#include "timeutil.h"
-#include "report.h"
-#include "test_params.h"
-
-struct thread_sync {
-	struct timespec send_time;
-	useconds_t slept_for;
-	int done;
-
+struct thread_sync_impl {
 	pthread_cond_t cond;
 	pthread_mutex_t cond_mutex;
 };
 
-struct thread_sync tsync;
-
-static void *
-writer_thread(void *ctx)
+static int
+sync_impl_init(struct thread_sync_impl *impl)
 {
-	struct test_run *run;
-	useconds_t sleep_for;
-	int times, i = 0;
+	pthread_cond_init(&impl->cond, NULL);
+	pthread_mutex_init(&impl->cond_mutex, NULL);
 
-	for (run = test_runs; run->sleep_for; run++) {
-		sleep_for = run->sleep_for;
-		times = run->times;
-
-		for (i = 0; i < times; i++) {
-			usleep(sleep_for);
-			tsync.slept_for = sleep_for;
-
-			clock_gettime(CLOCK_MONOTONIC, &tsync.send_time);
-			pthread_cond_signal(&tsync.cond);
-		}
-	}
-
-	usleep(sleep_for * 2);
-	tsync.done = 1;
-	pthread_cond_signal(&tsync.cond);
-
-	return NULL;
+	return 0;
 }
 
-int
-main(int argc, char **argv)
+static int
+sync_impl_wait(struct thread_sync_impl *impl)
 {
-	struct timespec recv_time, diff;
-	pthread_t writer;
+	pthread_mutex_lock(&impl->cond_mutex);
+	pthread_cond_wait(&impl->cond, &impl->cond_mutex);
+	pthread_mutex_unlock(&impl->cond_mutex);
 
-	pthread_cond_init(&tsync.cond, NULL);
-	pthread_mutex_init(&tsync.cond_mutex, NULL);
-
-	tsync.done = 0;
-
-	pthread_create(&writer, NULL, writer_thread, NULL);
-
-	for (;;) {
-		pthread_mutex_lock(&tsync.cond_mutex);
-		pthread_cond_wait(&tsync.cond, &tsync.cond_mutex);
-		pthread_mutex_unlock(&tsync.cond_mutex);
-
-		if (tsync.done)
-			break;
-
-		clock_gettime(CLOCK_MONOTONIC, &recv_time);
-		timespec_diff(&diff, &recv_time, &tsync.send_time);
-
-		report(tsync.slept_for, diff.tv_sec, diff.tv_nsec);
-	}
-
-	return EXIT_SUCCESS;
+	return 0;
 }
+
+static int
+sync_impl_signal(struct thread_sync_impl *impl)
+{
+	pthread_cond_signal(&impl->cond);
+
+	return 0;
+}
+
+#include "stub.inc.c"
