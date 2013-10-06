@@ -1,0 +1,6 @@
+# build stuff
+build/
+
+# temporary stuff
+*.swp
+*~

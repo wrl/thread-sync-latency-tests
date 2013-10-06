@@ -1,0 +1,10 @@
+this is a bunch of sketches to help compare latencies of various thread-synchronization primitives under linux. by "latency" i mean "how long does it take between dispatching a notification does it take to receive it?" the test case here is designed mainly to imitate an inter-thread message queue queues (like Go's channels, or actor mailboxes), where one thread spends most of its time blocked, waiting for notifications/messages from another thread.
+
+let's see what's on the menu in `src`:
+
+  - `src/control.c` is our "control". it tests two clock_gettime() calls
+	back to back in a single thread to estimate how long it takes
+	to get the current high-resolution time.
+
+  - `src/pthread_condvar.c` uses pthread condition variables to
+	synchronize access to a struct timespec.
