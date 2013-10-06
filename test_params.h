@@ -1,14 +1,12 @@
 #include <unistd.h>
 
-struct test_run {
-	useconds_t sleep_for;
-	int times;
-};
-
-struct test_run test_runs[] = {
-	{1000000, 3},
-	{100000, 30},
-	{10000, 300},
-	{1000, 3000},
-	{0}
+const int TEST_RUN_FOR_SECONDS = 60;
+const useconds_t TEST_RUNS[] = {
+	3000000,
+	1000000,
+	100000,
+	10000,
+	1000,
+	500,
+	0
 };

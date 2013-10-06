@@ -16,34 +16,57 @@
  */
 
 #include <stdlib.h>
+#include <pthread.h>
 #include <time.h>
 
 #include "timeutil.h"
 #include "report.h"
 #include "test_params.h"
 
+static void *
+rw_thread(void *ctx)
+{
+	struct timespec send_time, recv_time, diff;
+	useconds_t sleep_for;
+
+	sleep_for = *((useconds_t *) ctx);
+
+	for (;;) {
+		usleep(sleep_for);
+		clock_gettime(CLOCK_MONOTONIC, &send_time);
+		clock_gettime(CLOCK_MONOTONIC, &recv_time);
+		timespec_diff(&diff, &recv_time, &send_time);
+		report(sleep_for, diff.tv_sec, diff.tv_nsec);
+	}
+
+	return NULL;
+}
+
+static void *
+timer_thread(void *ctx)
+{
+	useconds_t *terminate_in = ctx;
+	usleep(*terminate_in);
+	return NULL;
+}
+
 int
 main(int argc, char **argv)
 {
-	struct timespec send_time, recv_time, diff;
-	struct test_run *run;
-	useconds_t sleep_for;
-	int times, i = 0;
+	pthread_t *rwthreads, timer;
+	useconds_t terminate_in;
+	int i;
 
-	for (run = test_runs; run->sleep_for; run++) {
-		sleep_for = run->sleep_for;
-		times = run->times;
+	terminate_in = TEST_RUN_FOR_SECONDS * 1000000;
 
-		for (i = 0; i < times; i++) {
-			usleep(sleep_for);
+	for (i = 0; TEST_RUNS[i]; i++);
+	rwthreads = calloc(1, sizeof(*rwthreads));
 
-			clock_gettime(CLOCK_MONOTONIC, &send_time);
-			clock_gettime(CLOCK_MONOTONIC, &recv_time);
-			timespec_diff(&diff, &recv_time, &send_time);
+	for (i = 0; TEST_RUNS[i]; i++)
+		pthread_create(&rwthreads[i], NULL, rw_thread, (void *) &TEST_RUNS[i]);
 
-			report(sleep_for, diff.tv_sec, diff.tv_nsec);
-		}
-	}
+	pthread_create(&timer, NULL, timer_thread, &terminate_in);
+	pthread_join(timer, NULL);
 
 	return EXIT_SUCCESS;
 }

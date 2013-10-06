@@ -27,63 +27,102 @@
 #include "stub_funcs.h"
 
 struct thread_sync {
+	struct thread_sync_impl impl;
 	struct timespec send_time;
-	useconds_t slept_for;
-	int done;
+	useconds_t sleep_for;
 };
 
-struct thread_sync_impl impl;
-struct thread_sync tsync;
+struct thread_pair {
+	pthread_t reader;
+	pthread_t writer;
+
+	struct thread_sync tsync;
+};
 
 static void *
 writer_thread(void *ctx)
 {
-	struct test_run *run;
+	struct thread_sync_impl *impl;
+	struct thread_sync *tsync;
+	struct timespec *send_time;
 	useconds_t sleep_for;
-	int times, i = 0;
 
-	for (run = test_runs; run->sleep_for; run++) {
-		sleep_for = run->sleep_for;
-		times = run->times;
+	tsync = ctx;
+	send_time = &tsync->send_time;
+	sleep_for = tsync->sleep_for;
+	impl = &tsync->impl;
 
-		for (i = 0; i < times; i++) {
-			usleep(sleep_for);
-			tsync.slept_for = sleep_for;
-
-			clock_gettime(CLOCK_MONOTONIC, &tsync.send_time);
-			sync_impl_signal(&impl);
-		}
+	for (;;) {
+		usleep(sleep_for);
+		clock_gettime(CLOCK_MONOTONIC, send_time);
+		sync_impl_signal(impl);
 	}
 
-	usleep(sleep_for * 2);
-	tsync.done = 1;
-	sync_impl_signal(&impl);
+	return NULL;
+}
+
+static void *
+reader_thread(void *ctx)
+{
+	struct timespec *send_time, recv_time, diff;
+	struct thread_sync_impl *impl;
+	struct thread_sync *tsync;
+	useconds_t sleep_for;
+
+	tsync = ctx;
+	send_time = &tsync->send_time;
+	sleep_for = tsync->sleep_for;
+	impl = &tsync->impl;
+
+	for (;;) {
+		sync_impl_wait(impl);
+
+		clock_gettime(CLOCK_MONOTONIC, &recv_time);
+		timespec_diff(&diff, &recv_time, send_time);
+		report(sleep_for, diff.tv_sec, diff.tv_nsec);
+	}
 
 	return NULL;
+}
+
+static void *
+timer_thread(void *ctx)
+{
+	useconds_t *terminate_in = ctx;
+	usleep(*terminate_in);
+	return NULL;
+}
+
+static int
+pair_init(struct thread_pair *pair, useconds_t sleep_time)
+{
+	pair->tsync.sleep_for = sleep_time;
+	sync_impl_init(&pair->tsync.impl);
+
+	pthread_create(&pair->reader, NULL, reader_thread, &pair->tsync);
+	pthread_create(&pair->writer, NULL, writer_thread, &pair->tsync);
+
+	return 0;
 }
 
 int
 main(int argc, char **argv)
 {
-	struct timespec recv_time, diff;
-	pthread_t writer;
+	struct thread_pair *pairs;
+	useconds_t terminate_in;
+	pthread_t timer;
+	int i;
 
-	sync_impl_init(&impl);
-	tsync.done = 0;
+	terminate_in = TEST_RUN_FOR_SECONDS * 1000000;
 
-	pthread_create(&writer, NULL, writer_thread, NULL);
+	for (i = 0; TEST_RUNS[i]; i++);
+	pairs = calloc(1, sizeof(*pairs));
 
-	for (;;) {
-		sync_impl_wait(&impl);
+	for (i = 0; TEST_RUNS[i]; i++)
+		pair_init(&pairs[i], TEST_RUNS[i]);
 
-		if (tsync.done)
-			break;
-
-		clock_gettime(CLOCK_MONOTONIC, &recv_time);
-		timespec_diff(&diff, &recv_time, &tsync.send_time);
-
-		report(tsync.slept_for, diff.tv_sec, diff.tv_nsec);
-	}
+	pthread_create(&timer, NULL, timer_thread, &terminate_in);
+	pthread_join(timer, NULL);
 
 	return EXIT_SUCCESS;
 }
