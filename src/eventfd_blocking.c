@@ -15,14 +15,37 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>. 
  */
 
-#include <stdio.h>
+#include <stdint.h>
 #include <unistd.h>
+#include <sys/eventfd.h>
 
-/* just a convenience function so that all the different tests output
- * in the same format. */
-static inline void
-report(useconds_t slept_for, time_t diff_seconds, long diff_nsec)
+#include "stub_funcs.h"
+
+struct thread_sync_impl {
+	int fd;
+};
+
+static int
+sync_impl_init(struct thread_sync_impl *impl)
 {
-	printf(" :: latency for %d usec: %ld s, %lu ns\n",
-			slept_for, diff_seconds, diff_nsec);
+	impl->fd = eventfd(0, 0);
+	return 0;
 }
+
+static int
+sync_impl_wait(struct thread_sync_impl *impl)
+{
+	uint64_t buf;
+	read(impl->fd, &buf, sizeof(buf));
+	return 0;
+}
+
+static int
+sync_impl_signal(struct thread_sync_impl *impl)
+{
+	uint64_t buf = 1;
+	write(impl->fd, &buf, sizeof(buf));
+	return 0;
+}
+
+#include "stub.inc.c"
