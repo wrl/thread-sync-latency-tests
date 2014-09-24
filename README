@@ -1,4 +1,6 @@
-this is a bunch of sketches to help compare latencies of various thread-synchronization primitives under linux. by "latency" i mean "how long does it take between dispatching a notification does it take to receive it?" the test case here is designed mainly to imitate an inter-thread message queue queues (like Go's channels, or actor mailboxes), where one thread spends most of its time blocked, waiting for notifications/messages from another thread.
+this is a bunch of sketches to help compare latencies of various thread-synchronization primitives under linux. by "latency" i mean "how long does it take between dispatching a notification does it take to receive it?" the test case here is designed mainly to imitate inter-thread message queues (like Go's channels, or actor mailboxes), where one thread spends most of its time blocked, waiting for notifications/messages from another thread(s).
+
+the testing methodology is, roughly, to spin up several pairs of threads (one reader and one writer per pair). the writer will sleep, retrieve the current high-resolution system time, wake up the reader, and sleep again. the reader will wake up, get the current system time, compare it with the writer's time, and print out the time delta. each pair differs only in how long the writer sleeps.
 
 let's see what's on the menu in `src`:
 
