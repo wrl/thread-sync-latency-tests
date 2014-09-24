@@ -116,7 +116,7 @@ main(int argc, char **argv)
 	terminate_in = TEST_RUN_FOR_SECONDS * 1000000;
 
 	for (i = 0; TEST_RUNS[i]; i++);
-	pairs = calloc(1, sizeof(*pairs));
+	pairs = calloc(i, sizeof(*pairs));
 
 	for (i = 0; TEST_RUNS[i]; i++)
 		pair_init(&pairs[i], TEST_RUNS[i]);
