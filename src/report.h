@@ -16,6 +16,7 @@
  */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <unistd.h>
 
 /* just a convenience function so that all the different tests output
@@ -24,5 +25,5 @@ static inline void
 report(useconds_t slept_for, time_t diff_seconds, long diff_nsec)
 {
 	int64_t nsec = diff_nsec + (diff_seconds * 1000000000);
-	printf("%d,%ld\n", slept_for, nsec);
+	printf("%d,%" PRId64 "\n", slept_for, nsec);
 }
