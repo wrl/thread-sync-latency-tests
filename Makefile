@@ -15,6 +15,7 @@ TARGETS += $(OUTDIR)/pipe_nonblock
 TARGETS += $(OUTDIR)/eventfd_blocking
 TARGETS += $(OUTDIR)/eventfd_nonblock
 TARGETS += $(OUTDIR)/futex
+TARGETS += $(OUTDIR)/futex_private
 
 .PHONY: all test clean
 
@@ -30,6 +31,7 @@ test: all
 	$(OUTDIR)/eventfd_blocking > results/eventfd_blocking
 	$(OUTDIR)/eventfd_nonblock > results/eventfd_nonblock
 	$(OUTDIR)/futex > results/futex
+	$(OUTDIR)/futex_private > results/futex_private
 
 analyze:
 	ruby analyze.rb results/*
